@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────
+# Optional: OpenShift BuildConfig — builds the image inside the cluster
+# using the Dockerfile in deploy/openshift/Dockerfile.
+# Run once: oc apply -f deploy/openshift/buildconfig.yaml
+# Then trigger a build: oc start-build ncms-frontend
+# ─────────────────────────────────────────────────────────────────
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ncms-frontend
+  namespace: ncms              # ← change to your OCP namespace/project
+  labels:
+    app: ncms-frontend
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/your-org/ncms-frontend.git   # ← your repo URL
+      ref: main
+    contextDir: "."
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: deploy/openshift/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ncms-frontend:latest
+  triggers:
+    - type: GitHub
+      github:
+        secret: ncms-github-webhook-secret     # ← set via oc secret
+    - type: ConfigChange

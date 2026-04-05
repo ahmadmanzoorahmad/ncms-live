@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  ncms-frontend:
+    build:
+      context: ../..            # repo root
+      dockerfile: deploy/docker/Dockerfile
+    image: ncms-frontend:local
+    container_name: ncms-frontend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
